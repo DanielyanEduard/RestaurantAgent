@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+        h2 {
+            margin: 10px;
+        }
+
+        .header {
+            width: 100%;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .content {
+            display: flex;
+            width: 100%;
+        }
+
+        .left-content {
+            width: 60%;
+            padding: 20px;
+            background-color: #f5f5f5;
+            overflow-y: auto;
+            height: calc(100vh - 105px);
+        }
+
+        .products {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .product {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            background-color: white;
+        }
+
+        .product img {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        .chat-container {
+            width: 40%;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #ccc;
+            background-color: white;
+            overflow-y: auto;
+            height: calc(100vh - 105px);
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 5px 0;
+        }
+
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .bot-message {
+            background-color: #e9ecef;
+            color: black;
+            align-self: flex-start;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 20px;
+            border-top: 1px solid #ccc;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .chat-input button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .chat-input button:hover {
+            background-color: #0056b3;
+        }
+
+        .bot-images {
+            /*display: flex;*/
+            flex-direction: column;
+            gap: 10px;
+            max-width: 80%;
+
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Maximum 3 images per row */
+            /*margin-top: 10px;*/
+        }
+
+        .bot-images img {
+            /*max-width: 20%;*/
+            border-radius: 5px;
+            width: 100%; /* Adjust size based on container */
+            max-width: 500px; /* Set a max width for images */
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="important-text" style="background-color: #ff0000; color: white; padding: 10px;">
+            <h3 style="margin: 0">This is a demo version of the agent. Response times may be slower because the server and the LLM model are on the free version.</h3>
+        </div>
+        <div class="additional-info" style="background-color: #e9ecef; padding: 10px;">
+            <h5 style="margin: 0">The agent covers 5,000 products. You can test it by asking questions about product ingredients, preparation instructions, prices, and more. It can suggest combinations based on your preferences and available budget.
+                Please note, this is a demo for the agent itself, so focus on the agent’s functionality rather than the webpage design.
+            </h5>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="left-content">
+            <h1 style="text-align: center; margin-top: 0">All Products</h1>
+            <div class="products" id="product-list"></div>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-input">
+                <input type="text" id="message-input" placeholder="Chat with agent...">
+                <button id="send-button">Send</button>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="bot-message message">Hello! I am your culinary assistant. I can help you with recipes, cooking advice, food suggestions, and price calculations.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let page = 1;
+let loading = false;  // Prevent multiple requests at once
+
+function loadProducts() {
+    if (loading) return;
+    loading = true;
+
+    $.get(`/get-products?page=${page}`, function (data) {
+        data.products.forEach(product => {
+            $('#product-list').append(`
+                <div class="product">
+                    <img src="static/Food Images/${product.Image_Name}.jpg" alt="${product.Title}">
+                    <h3>${product.Title}</h3>
+                    <p>$${product.Price}</p>
+                    <p>${product.Ingredients.slice(0, 200)}...</p>
+                </div>
+            `);
+        });
+
+        page++;  // Move to next batch
+        loading = false;  // Allow next request
+        }).fail(function () {
+            loading = false;  // Reset loading if request fails
+        });
+    }
+
+    $(document).ready(function () {
+        loadProducts();  // Load first batch
+
+        $('.left-content').on('scroll', function () {
+            let nearBottom = $(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight - 10;
+            if (nearBottom && !loading) {
+                loadProducts();
+            }
+        });
+    });
+    function appendTypingIndicator() {
+        const typingDiv = $('<div>')
+            .addClass('message bot-message typing-indicator')
+            .text('The agent is typing...');
+        $('#chat-messages').prepend(typingDiv);
+        $('#chat-messages').scrollTop(0);
+    }
+
+    function removeTypingIndicator() {
+        $('.typing-indicator').remove();
+    }
+    $(document).ready(function() {
+        $('#message-input').on('keypress', function(e) {
+            if (e.which === 13) {
+                sendMessage();
+            }
+    });
+
+    $('#send-button').on('click', sendMessage);
+
+    function appendMessage(message, isUser) {
+        const messageDiv = $('<div>')
+            .addClass('message')
+            .addClass(isUser ? 'user-message' : 'bot-message')
+            .text(message);
+        $('#chat-messages').prepend(messageDiv);  // Change append() to prepend()
+        $('#chat-messages').scrollTop(0);  // Scroll to the top instead of bottom
+    }
+
+    function appendImages(images) {
+        const imagesDiv = $('<div>').addClass('bot-images');
+
+        images.forEach(imagePath => {
+            const img = $('<img>')
+                .attr('src', "static/Food Images/" + imagePath + ".jpg")
+                .attr('alt', 'Agent response image');
+                // .addClass('chat-image'); // Add a class for styling
+            imagesDiv.append(img);
+        });
+
+        $('#chat-messages').prepend(imagesDiv);  // Change append() to prepend()
+        $('#chat-messages').scrollTop(0);  // Scroll to the top instead of bottom
+    }
+
+    function sendMessage() {
+        const messageInput = $('#message-input');
+        const message = messageInput.val().trim();
+
+        if (!message) return;
+
+        appendMessage(message, true);
+        messageInput.val('');
+        appendTypingIndicator();
+
+        $.ajax({
+            url: '/chat',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ message: message }),
+            success: function(response) {
+                removeTypingIndicator();
+
+                if (response.success) {
+                    if (response.images && response.images.length > 0) {
+                        appendImages(response.images);
+                    }
+                    if (response.answer) {
+                        appendMessage(response.answer, false);
+                    }
+                } else {
+                    appendMessage('Please refresh the page and try again.', false);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                appendMessage('Please refresh the page and try again.', false);
+            }
+        });
+    }
+});
+    </script>
+</body>
+
+</html>
