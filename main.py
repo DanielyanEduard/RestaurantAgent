@@ -7,7 +7,6 @@ import os
 from langgraph.graph import StateGraph, MessagesState
 from langchain.chat_models import init_chat_model
 
-os.environ["GOOGLE_API_KEY"] = "AIzaSyC5VHvTQgxXSvSYCJ3p7VEFq-XobU1mHWY"
 foods_dataframe = pd.read_csv("data/5000foods.csv")
 
 def call_model(state: MessagesState):
