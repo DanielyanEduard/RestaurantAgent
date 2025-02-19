@@ -24,5 +24,11 @@ The demo may run slowly as it is hosted on a free-tier server and uses a free ve
 - Response time may vary due to server limitations.
 - The demo focuses on showcasing the **agent's functionality**, not webpage design.
 
+## Developer Guide
+To run the agent locally, follow these steps:
+1. Set up the environment variable `GOOGLE_API_KEY`.
+2. Run `app.py`.
+3. Access the application at `localhost:5000`.
+
 ## Feedback
 Feel free to report any issues or suggest improvements through GitHub Issues.
