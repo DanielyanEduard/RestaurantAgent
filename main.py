@@ -6,7 +6,7 @@ import pandas as pd
 from langgraph.graph import StateGraph, MessagesState
 from langchain.chat_models import init_chat_model
 
-foods_dataframe = pd.read_csv("data/5000foods.csv")
+foods_dataframe = pd.read_csv("data/1000foods.csv")
 
 def call_model(state: MessagesState):
     llm = init_chat_model("gemini-2.0-flash", model_provider="google_genai")
