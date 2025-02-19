@@ -1,10 +1,10 @@
 # Restaurant Agent Demo
 
 ## Overview
-The **Restaurant Agent** is an AI-powered assistant that helps users explore and compare a database of 5,000 products. Users can ask questions about ingredients, preparation instructions, prices, and more. The agent can also suggest product combinations based on individual preferences and available budget.
+The **Restaurant Agent** is an AI-powered assistant that helps users explore and compare a database of 1,000 products. Users can ask questions about ingredients, preparation instructions, prices, and more. The agent can also suggest product combinations based on individual preferences and available budget.
 
 ## Features
-- Covers **5,000 products** with detailed information.
+- Covers **1,000 products** with detailed information.
 - Answers queries about **ingredients, preparation methods, and pricing**.
 - Provides **personalized product recommendations**.
 - Assists in **budget-based product selection**.
